@@ -1,0 +1,220 @@
+#version: '3'
+
+# volumes:
+#   postgres-data:
+
+services:
+
+  # Catalog UI
+
+  # lrl-urpid-catalog:
+  #   image: 'lrl-urpid-catalog:latest'
+  #   depends_on:
+  #     - lrl-urpid-core
+  #   build:
+  #     dockerfile: ./container/Dockerfile
+  #     context: ..
+  #   ports:
+  #     - "8082:80"
+  #   volumes:
+  #     - type: bind
+  #       source: ./configs/config.js
+  #       target: /usr/share/nginx/html/config.js
+
+  # Core
+  
+  # lrl-urpid-core:
+    # TODO: use elilly docker registry to avoid build constantly
+    # image: 'lrl-urpid-core:latest'
+    # depends_on: 
+    #   - kafka
+    #   - postgres
+    # build:
+    #   dockerfile: ./container/Dockerfile
+    #   # TODO: change branch
+    #   context: ${GIT_PREFIX}EliLillyCo/LRL_urpid_core.git#dev
+    # environment:
+    #   - APP_PORT=8080
+    #   - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+    #   - DATABASE_SCHEMA=urpid
+    #   - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    #   - LIQUIBASE_CONTEXT=dev
+    # ports: 
+    #   - "8081:8080"
+
+  # Database
+  # postgres:
+  #   image: elilillyco-lilly-docker.jfrog.io/postgres:${POSTGRES_VERSION}
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   expose:
+  #     - "5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+
+  # Broker
+
+  ## Zookeeper
+
+  zookeeper:
+    image: elilillyco-lilly-docker.jfrog.io/confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    expose:
+      - "2181"
+    
+  ## Kafka
+
+  kafka:
+    image: elilillyco-lilly-docker.jfrog.io/confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    expose: 
+      - "29092"
+      - "9092"
+      - "9997"
+    
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.18.0.3:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka0 -Dcom.sun.management.jmxremote.rmi.port=9997
+      KAFKA_MESSAGE_MAX_BYTES: 5242880  # 5 MB
+      KAFKA_MAX_REQUEST_SIZE: 5242880  # 5 MB for producer requests
+
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "172.18.0.3:9092"]
+      interval: 10s
+      retries: 5
+
+  ## Kafka Topics initialization
+
+  kafka-init-topics:
+    image: elilillyco-lilly-docker.jfrog.io/confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    command: "bash -c 'echo Waiting for Kafka to be ready... && \
+             cub kafka-ready -b kafka:9092 1 30 && \
+             kafka-topics --create --topic object.gsmr --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic object.regmol --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic object.benchling --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic result.gsmr --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic result.regmol --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic result.benchling --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic result.overall.proto --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092 && \
+             kafka-topics --create --topic result.overall --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka:9092'"
+
+
+  ## Kafka UI
+
+  kafka-ui:
+    image: elilillyco-lilly-docker.jfrog.io/provectuslabs/kafka-ui:latest
+    ports:
+      - "8080"
+    depends_on:
+      - kafka
+      - schemaregistry
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schemaregistry:8085    #schemaregistry
+
+  
+  schemaregistry:
+    image: elilillyco-lilly-docker.jfrog.io/confluentinc/cp-schema-registry:7.2.1
+    ports:
+      - 8085:8085
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/subjects"]
+      interval: 20s     # Check every 10 seconds
+      timeout: 15s       # Fail if it doesn't respond within 5 seconds
+      retries: 10        # Retry 5 times before marking it unhealthy
+    
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: PLAINTEXT
+      SCHEMA_REGISTRY_HOST_NAME: schemaregistry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8085 #http://172.18.0.5:8085
+
+      SCHEMA_REGISTRY_SCHEMA_REGISTRY_INTER_INSTANCE_PROTOCOL: "http"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: INFO
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+
+  ## Kafka producer with fake egress messages
+  producer:
+    build:
+      context: scripts
+      dockerfile: ./Dockerfile_producer
+    container_name: producer
+    image: my/kafka-producer:v1
+    depends_on:
+      #- kafka
+      schemaregistry:
+        condition: service_healthy
+    restart: always   # Ensure the consumer restarts on failure
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z schemaregistry 8085 || exit 1"]
+      interval: 20s   # Wait 15 seconds between retries
+      timeout: 5s
+      retries: 10
+
+  ## Kafka consumer
+  consumer:
+    build:
+      dockerfile: ./Dockerfile_consumer
+    container_name: consumer
+    image: my/kafka-consumer:v1
+    depends_on:
+      #- kafka
+      schemaregistry:
+        condition: service_healthy
+    restart: always   # Ensure the consumer restarts on failure
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z schemaregistry 8085 || exit 1"]
+      interval: 15s   # Wait 15 seconds between retries
+      timeout: 5s
+      retries: 5
+
+  produce_proto:
+    build:
+      context: scripts
+      dockerfile: ./Dockerfile_producer_proto
+    image: my/producer-proto:v1
+    container_name: producer_proto
+    depends_on:
+      schemaregistry:
+        condition: service_healthy
+    restart: always   # Ensure the consumer restarts on failure
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z schemaregistry 8085 || exit 1" ]
+      interval: 15s   # Wait 15 seconds between retries
+      timeout: 5s
+      retries: 5
+
+
+  # postgres_test:
+  #   image: elilillyco-lilly-docker.jfrog.io/postgres:latest
+  #   restart: unless-stopped
+  #   container_name: postgres_test
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #     - POSTGRES_DB=postgres
+  #   expose:
+  #     - "5432"
+    # volumes:
+    #   - postgres-data:/var/lib/postgresql/data
+  

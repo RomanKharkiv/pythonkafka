@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpid.lilly.com/egress_schema",
+  "title": "URPID Catalog new object created message",
+  "description": "URPID Catalog new object created message JSON schema",
+  "type": "object",
+  "required":
+  [
+    "request_id",
+    "transactions"
+  ],
+  "additionalProperties": false,
+  "properties":
+  {
+    "request_id": {
+      "type": "string",
+      "minLength": 9
+    },
+    "transactions":
+    {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6000,
+      "items":
+      {
+        "$ref": "#/$defs/transaction"
+      }
+    }
+  },
+  "$defs":
+  {
+    "transaction":
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required":
+      [
+        "trusted_system",
+        "request_id",
+        "new_objects"
+      ],
+      "properties": {
+        "trusted_system": {
+          "type": "string",
+          "minLength": 3
+        },
+        "request_id": {
+          "type": "string",
+          "minLength": 9
+        },
+        "new_objects": {
+          "type": "array",
+          "maxItems": 6000,
+          "items": {
+            "$ref": "#/$defs/new_object"
+          }
+        },
+        "update_objects": {
+          "type": "array",
+          "maxItems": 6000,
+          "items": {
+            "$ref": "#/$defs/new_object"
+          }
+        },
+        "relationships": {
+          "type": "array",
+          "maxItems": 6000,
+          "items": {
+            "$ref": "#/$defs/relationship"
+          }
+        },
+        "dateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "new_object":
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required":
+      [
+        "urpid",
+        "object_type",
+        "object_subtype"
+      ],
+      "properties":
+      {
+        "urpid":
+        {
+          "type": "string",
+          "minLength": 20
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "object_type":
+        {
+          "type": "string",
+          "minLength": 3
+        },
+        "object_subtype":
+        {
+          "type": "string",
+          "minLength": 3
+        },
+        "alternative_ids":
+        {
+          "type": "array",
+          "items":
+          {
+            "$ref": "#/$defs/alternative_id"
+          }
+        }
+      }
+    },
+    "alternative_id":
+    {
+      "type": "object",
+      "required":
+      [
+        "alternative_id",
+        "coding_system"
+      ],
+      "additionalProperties": false,
+      "properties":
+      {
+        "alternative_id":
+        {
+          "type": "integer",
+          "minLength": 6
+        },
+        "coding_system":
+        {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "relationship":
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required":
+      [
+        "relationship_type",
+        "parent_object_urpid",
+        "child_object_urpid"
+      ],
+      "properties":
+      {
+        "relationship_type":
+        {
+          "type": "string",
+          "minLength": 6
+        },
+        "parent_object_urpid":
+        {
+          "type": "string",
+          "minLength": 20
+        },
+        "child_object_urpid":
+        {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    }
+  }
+}

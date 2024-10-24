@@ -1,0 +1,20 @@
+FROM ubuntu:latest
+
+RUN apt update
+RUN apt install python3 -y
+RUN apt -y install python3-pip
+RUN apt install -y protobuf-compiler
+RUN apt install tree
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+USER root
+
+COPY requirements.txt .
+COPY . /app
+COPY protobuf /app/protobuf
+
+RUN pip install -r requirements.txt --break-system-packages
+CMD ["make"]
