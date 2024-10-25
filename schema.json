@@ -14,7 +14,7 @@
   {
     "request_id": {
       "type": "string",
-      "minLength": 9
+      "minLength": 1
     },
     "transactions":
     {
@@ -42,11 +42,11 @@
       "properties": {
         "trusted_system": {
           "type": "string",
-          "minLength": 3
+          "minLength": 1
         },
         "request_id": {
           "type": "string",
-          "minLength": 9
+          "minLength": 1
         },
         "new_objects": {
           "type": "array",
@@ -101,12 +101,12 @@
         "object_type":
         {
           "type": "string",
-          "minLength": 3
+          "minLength": 1
         },
         "object_subtype":
         {
           "type": "string",
-          "minLength": 3
+          "minLength": 1
         },
         "alternative_ids":
         {
@@ -131,13 +131,13 @@
       {
         "alternative_id":
         {
-          "type": "integer",
-          "minLength": 6
+          "type": "string",
+          "minLength": 1
         },
         "coding_system":
         {
           "type": "string",
-          "minLength": 3
+          "minLength": 1
         }
       }
     },
@@ -156,7 +156,7 @@
         "relationship_type":
         {
           "type": "string",
-          "minLength": 6
+          "minLength": 1
         },
         "parent_object_urpid":
         {

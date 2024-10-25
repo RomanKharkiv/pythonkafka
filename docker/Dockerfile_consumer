@@ -9,8 +9,8 @@ USER root
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-COPY consumer.py /app/consumer.py
-COPY config.py /app/config.py
-COPY schema.json /app/schema.json
+COPY ../consumer/consumer.py /app/consumer.py
+COPY ../config.py /app/config.py
+COPY ../schema.json /app/schema.json
 
-CMD ["python3", "consumer.py"]
+CMD ["python", "consumer.py"]

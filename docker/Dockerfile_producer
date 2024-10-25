@@ -11,6 +11,8 @@ USER root
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-COPY . /app
+COPY producer /app
+COPY ../config.py /app
+COPY ../schema.json /app
 
-CMD ["python3", "producer.py"]
+CMD ["python", "producer.py"]
