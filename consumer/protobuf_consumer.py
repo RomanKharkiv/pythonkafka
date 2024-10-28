@@ -10,9 +10,13 @@ def main():
 
     protobuf_deserializer = ProtobufDeserializer(urpd_product_pb2.UrpProduct,
                                                  {'use.deprecated.format': False})
+
+    def print_assignment(cons, partitions):
+        print(f'Assignment partition for {cons}: {partitions}')
+
     config.update(consumer_conf)
     consumer = Consumer(config)
-    consumer.subscribe([topic])
+    consumer.subscribe([topic], on_assign=print_assignment)
 
     while True:
         try:
