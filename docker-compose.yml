@@ -213,7 +213,7 @@ services:
   produce_proto:
     build:
       dockerfile: docker/Dockerfile_producer_proto
-    image: my/producer-proto:v1
+    image: my/producer-proto:v2
     container_name: producer_proto
     environment:
       KAFKA_TOPIC: result.overall.proto
@@ -226,7 +226,7 @@ services:
   consumer_proto:
     build:
       dockerfile: docker/Dockerfile_consumer_proto
-    image: my/consumer-proto:v1
+    image: my/consumer-proto:v2
 #    container_name: consumer_proto
     environment:
       KAFKA_TOPIC: result.overall.proto

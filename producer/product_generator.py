@@ -53,7 +53,6 @@ def generate_relationship(parent_urpid, child_urpid):
 
 
 def generate_transaction():
-    request_id = generate_random_request_id()
     new_object = generate_new_object()
     update_object = generate_update_object()
     relationship = generate_relationship(generate_random_urpid(), new_object["urpid"])
@@ -62,7 +61,6 @@ def generate_transaction():
     return {
         "dateTime": dateTime,
         "trusted_system": random.choice(["GSMR", "REGMOL", "BNCH"]),
-        "request_id": request_id,
         "new_objects": [new_object],
         "update_objects": [update_object],
         "relationships": [relationship]
@@ -72,6 +70,5 @@ def generate_transaction():
 def generate_data():
     return {
         "request_id": generate_random_request_id(),
-        # "transactions": [generate_transaction() for _ in range(random.randint(1, 5))]
-        "transactions": [generate_transaction()]
+        "transaction": generate_transaction()
     }

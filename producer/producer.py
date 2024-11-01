@@ -31,11 +31,11 @@ def delivery_report(err, event):
 if __name__ == '__main__':
     while True:
         fake_data = generate_data()
-        print(json.dumps(fake_data, indent=2))
+        # print(json.dumps(fake_data, indent=2))
 
         producer.produce(topic=topic,
                          # partition=0,
-                         key=string_serializer(fake_data['request_id']),
+                         key=string_serializer(fake_data['transaction']['trusted_system']),
                          value=json_serializer(fake_data,
                                                SerializationContext(topic, MessageField.VALUE)),
                          on_delivery=delivery_report)

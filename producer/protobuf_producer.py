@@ -40,7 +40,7 @@ def main():
             new_product = ParseDict(generate_data(), urpd_product_pb2.UrpProduct())
             producer.produce(topic=topic,
                              # partition=0,
-                             key=string_serializer(fake_data['request_id']),
+                             key=string_serializer(fake_data['transaction']['trusted_system']),
                              value=protobuf_serializer(new_product, SerializationContext(topic, MessageField.VALUE)),
                              on_delivery=delivery_report)
 

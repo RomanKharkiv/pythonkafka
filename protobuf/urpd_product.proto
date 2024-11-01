@@ -3,11 +3,10 @@ syntax = "proto3";
 
 message UrpProduct {
   string request_id = 1;
-  repeated Transaction transactions = 2;
+  Transaction transaction = 2;
 }
 
 message Transaction {
-  string request_id = 1;
   string trusted_system = 2;
   repeated UrpObject new_objects = 3;
   repeated UrpObject update_objects = 4;
