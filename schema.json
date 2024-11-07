@@ -103,8 +103,7 @@
           "minLength": 1
         },
         "coding_system": {
-          "type": "string",
-          "minLength": 1
+          "$ref": "#/$defs/coding_system"
         }
       }
     },
@@ -128,6 +127,32 @@
         "child_object_urpid": {
           "type": "string",
           "minLength": 20
+        }
+      }
+    },
+     "coding_system": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coding_system_id",
+        "trusted_system"
+      ],
+      "properties": {
+        "coding_system_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coding_system_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coding_system_display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trusted_system": {
+          "type": "string",
+          "minLength": 1
         }
       }
     }
