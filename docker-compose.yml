@@ -7,7 +7,7 @@ services:
   #   depends_on:
   #     - lrl-urpid-core
   #   build:
-  #     dockerfile: ./container/Dockerfile
+  #     dockerfile: ./container/Dockerfile_consumer_avro
   #     context: ..
   #   ports:
   #     - "8082:80"
@@ -25,7 +25,7 @@ services:
     #   - kafka
     #   - postgres
     # build:
-    #   dockerfile: ./container/Dockerfile
+    #   dockerfile: ./container/Dockerfile_consumer_avro
     #   # TODO: change branch
     #   context: ${GIT_PREFIX}EliLillyCo/LRL_urpid_core.git#dev
     # environment:
@@ -38,19 +38,17 @@ services:
     #   - "8081:8080"
 
   # Database
-  # postgres:
-  #   image: elilillyco-lilly-docker.jfrog.io/postgres:${POSTGRES_VERSION}
-  #   restart: unless-stopped
-  #   environment:
-  #     - POSTGRES_USER=${POSTGRES_USER}
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  #     - POSTGRES_DB=${POSTGRES_DB}
-  #   expose:
-  #     - "5432"
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    expose:
+      - "5432"
   #   volumes:
   #     - postgres-data:/var/lib/postgresql/data
-
-  # Broker
 
   ## Zookeeper
   zookeeper:
@@ -136,6 +134,7 @@ services:
              kafka-topics --create --topic result.regmol --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
              kafka-topics --create --topic result.benchling --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
              kafka-topics --create --topic result.overall.proto --partitions 3 --replication-factor 2 --if-not-exists --bootstrap-server kafka-broker-3:9092 && \
+             kafka-topics --create --topic result.overall.avro --partitions 3 --replication-factor 2 --if-not-exists --bootstrap-server kafka-broker-2:9092 && \
              kafka-topics --create --topic result.overall --partitions 3 --replication-factor 2 --if-not-exists --bootstrap-server kafka-broker-1:9092'"
 
 
@@ -199,10 +198,12 @@ services:
   consumer:
     build:
       dockerfile: docker/Dockerfile_consumer
-#    container_name: consumer
     image: my/kafka-consumer:v1
     environment:
       KAFKA_TOPIC: result.overall
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     depends_on:
       - kafka-broker-1
       - kafka-broker-2
@@ -227,13 +228,43 @@ services:
     build:
       dockerfile: docker/Dockerfile_consumer_proto
     image: my/consumer-proto:v2
-#    container_name: consumer_proto
     environment:
       KAFKA_TOPIC: result.overall.proto
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     depends_on:
       - kafka-broker-1
       - kafka-broker-2
       - kafka-broker-3
     restart: on-failure
     scale: 3
-  
+
+  produce_avro:
+    build:
+      dockerfile: docker/Dockerfile_producer_avro
+    image: my/producer-avro:v11w
+    container_name: producer_avro_451w
+    environment:
+      KAFKA_TOPIC: result.overall.avro
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+    restart: on-failure
+
+  consumer_avro:
+    build:
+      dockerfile: docker/Dockerfile_consumer_avro
+    image: my/consumer-avro:v23res
+    environment:
+      KAFKA_TOPIC: result.overall.avro
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+    restart: on-failure
+    scale: 3

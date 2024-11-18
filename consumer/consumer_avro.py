@@ -1,25 +1,26 @@
 import os
-
 from confluent_kafka import Consumer
-from confluent_kafka.schema_registry.json_schema import JSONDeserializer
 from confluent_kafka.serialization import SerializationContext, MessageField
-from config import config, consumer_conf
+from config import config, consumer_conf, sr_config
 from processor import process_message_with_retry, Session
+from confluent_kafka.schema_registry import SchemaRegistryClient
+from confluent_kafka.schema_registry.avro import AvroDeserializer
 
-
-with open('schema.json', 'r') as f:
+with open('schema.avsc', 'r') as f:
     schema_str = f.read()
 
 def print_assignment(cons, partitions):
     print(f'Assignment partition for {cons}: {partitions}')
 
+topic = os.getenv('KAFKA_TOPIC', 'result.overall.avro')
 
-json_deserializer = JSONDeserializer(schema_str)
-topic = os.getenv('KAFKA_TOPIC', 'result.overall')
+schema_registry_client = SchemaRegistryClient(sr_config)
+avro_deserializer = AvroDeserializer(schema_registry_client, schema_str)
 
 config.update(consumer_conf)
 consumer = Consumer(config)
 consumer.subscribe([topic], on_assign=print_assignment)
+
 while True:
     session = Session()
     try:
@@ -28,7 +29,8 @@ while True:
             continue
         
         raw_message = event.value()
-        message = json_deserializer(raw_message, SerializationContext(topic, MessageField.VALUE))  #event.value()
+        message = avro_deserializer(raw_message, SerializationContext(event.topic(), MessageField.VALUE))
+
         if message is not None:
             print(f'Latest message {message}')
             try:
@@ -45,7 +47,7 @@ while True:
         break
     except Exception as e:
         print(f"Error: {e}")
-    # finally:
-    #     session.close()
+    finally:
+        session.close()
 
 consumer.close()

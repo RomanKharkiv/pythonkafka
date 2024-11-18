@@ -1,0 +1,123 @@
+{
+    "name": "UrpProduct",
+    "type": "record",
+    "fields": [
+        {
+            "name": "request_id",
+            "type": "string"
+        },
+        {
+            "name": "transaction",
+            "type": {
+                "type": "record",
+                "name": "Transaction",
+                "fields": [
+                    {
+                        "name": "trusted_system",
+                        "type": "string"
+                    },
+                    {
+                        "name": "new_objects",
+                        "type": {
+                            "type": "array",
+                            "items": {
+                                "type": "record",
+                                "namespace": "com.urpid.types",
+                                "name": "UrpObject",
+                                "fields": [
+                                    {
+                                        "name": "urpid",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "aliases",
+                                        "type": {
+                                            "type": "array",
+                                            "items": "string"
+                                        }
+                                    },
+                                    {
+                                        "name": "object_type",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "object_subtype",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "alternative_ids",
+                                        "type": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "record",
+                                                "name": "Alternative_id",
+                                                "fields": [
+                                                    {
+                                                        "name": "alternative_id",
+                                                        "type": "string"
+                                                    },
+                                                    {
+                                                        "name": "coding_system",
+                                                        "type": {
+                                                            "type": "record",
+                                                            "name": "CodingSystem",
+                                                            "fields": [
+                                                                {
+                                                                    "name": "coding_system_code",
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "name": "url_prefix",
+                                                                    "type": "string"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "update_objects",
+                        "type": {
+                            "type": "array",
+                            "items": "com.urpid.types.UrpObject"
+                        }
+                    },
+                    {
+                        "name": "relationships",
+                        "type": {
+                            "type": "array",
+                            "items": {
+                                "type": "record",
+                                "name": "Relationship",
+                                "fields": [
+                                    {
+                                        "name": "relationship_type",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "parent_object_urpid",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "child_object_urpid",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "date_time",
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    ]
+}

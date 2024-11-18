@@ -1,160 +1,150 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://urpid.lilly.com/egress_schema",
-  "title": "URPID Catalog new object created message",
-  "description": "URPID Catalog new object created message JSON schema",
-  "type": "object",
-  "required": [
-    "request_id",
-    "transaction"
-  ],
-  "additionalProperties": false,
-  "properties": {
-    "request_id": {
-      "type": "string",
-      "minLength": 1
-    },
-    "transaction": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "trusted_system",
-        "new_objects"
-      ],
-      "properties": {
-        "trusted_system": {
-          "type": "string",
-          "minLength": 1
-        },
-        "new_objects": {
-          "type": "array",
-          "maxItems": 6000,
-          "items": {
-            "$ref": "#/$defs/object"
-          }
-        },
-        "update_objects": {
-          "type": "array",
-          "maxItems": 6000,
-          "items": {
-            "$ref": "#/$defs/object"
-          }
-        },
-        "relationships": {
-          "type": "array",
-          "maxItems": 6000,
-          "items": {
-            "$ref": "#/$defs/relationship"
-          }
-        },
-        "dateTime": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    }
-  },
-  "$defs": {
-    "object": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "urpid",
-        "object_type",
-        "object_subtype"
-      ],
-      "properties": {
-        "urpid": {
-          "type": "string",
-          "minLength": 20
-        },
-        "aliases": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "object_type": {
-          "type": "string",
-          "minLength": 1
-        },
-        "object_subtype": {
-          "type": "string",
-          "minLength": 1
-        },
-        "alternative_ids": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/alternative_id"
+    "title": "URPID Catalog new object created message",
+    "description": "URPID Catalog new object created message JSON schema",
+    "type": "object",
+    "required": [
+      "request_id",
+      "transaction"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "request_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "transaction": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "trusted_system"
+        ],
+        "properties": {
+          "trusted_system": {
+            "type": "string",
+            "minLength": 1
+          },
+          "new_objects": {
+            "type": "array",
+            "maxItems": 6000,
+            "items": {
+              "$ref": "#/$defs/object"
+            }
+          },
+          "update_objects": {
+            "type": "array",
+            "maxItems": 6000,
+            "items": {
+              "$ref": "#/$defs/object"
+            }
+          },
+          "relationships": {
+            "type": "array",
+            "maxItems": 6000,
+            "items": {
+              "$ref": "#/$defs/relationship"
+            }
+          },
+          "date_time": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }
     },
-    "alternative_id": {
-      "type": "object",
-      "required": [
-        "alternative_id",
-        "coding_system"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "alternative_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "coding_system": {
-          "$ref": "#/$defs/coding_system"
+    "$defs": {
+      "object": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "urpid",
+          "object_type",
+          "object_subtype"
+        ],
+        "properties": {
+          "urpid": {
+            "type": "string",
+            "minLength": 20
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "object_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "object_subtype": {
+            "type": "string",
+            "minLength": 1
+          },
+          "alternative_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/alternative_id"
+            }
+          }
         }
-      }
-    },
-    "relationship": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "relationship_type",
-        "parent_object_urpid",
-        "child_object_urpid"
-      ],
-      "properties": {
-        "relationship_type": {
-          "type": "string",
-          "minLength": 1
-        },
-        "parent_object_urpid": {
-          "type": "string",
-          "minLength": 20
-        },
-        "child_object_urpid": {
-          "type": "string",
-          "minLength": 20
+      },
+      "alternative_id": {
+        "type": "object",
+        "required": [
+          "alternative_id",
+          "coding_system"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "alternative_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coding_system": {
+            "$ref": "#/$defs/coding_system"
+          }
         }
-      }
-    },
-     "coding_system": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "coding_system_id",
-        "trusted_system"
-      ],
-      "properties": {
-        "coding_system_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "coding_system_code": {
-          "type": "string",
-          "minLength": 1
-        },
-        "coding_system_display_name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "trusted_system": {
-          "type": "string",
-          "minLength": 1
+      },
+      "relationship": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "relationship_type",
+          "parent_object_urpid",
+          "child_object_urpid"
+        ],
+        "properties": {
+          "relationship_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "parent_object_urpid": {
+            "type": "string",
+            "minLength": 20
+          },
+          "child_object_urpid": {
+            "type": "string",
+            "minLength": 20
+          }
+        }
+      },
+       "coding_system": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "coding_system_code"
+        ],
+        "properties": {
+          "coding_system_code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url_prefix": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     }
   }
-}

@@ -4,6 +4,9 @@ from confluent_kafka.serialization import SerializationContext, MessageField
 from confluent_kafka.schema_registry.protobuf import ProtobufDeserializer
 from config import config, consumer_conf
 import os
+from protobuf_to_dict import protobuf_to_dict
+from processor import process_message, Session
+
 
 def main():
     topic = os.getenv('KAFKA_TOPIC', 'result.overall.proto')
@@ -20,18 +23,26 @@ def main():
 
     while True:
         try:
-            # SIGINT can't be handled when polling, limit timeout to 1 second.
+            session = Session()
             msg = consumer.poll(1.0)
             if msg is None:
                 continue
 
-            urp_product = protobuf_deserializer(msg.value(), SerializationContext(topic, MessageField.VALUE))
+            urp_object = protobuf_deserializer(msg.value(), SerializationContext(topic, MessageField.VALUE))
 
-            if urp_product is not None:
-                print(F"Received product with request_id -  {urp_product.request_id}")
+            if urp_object is not None:
+                message = protobuf_to_dict(urp_object)
+                if isinstance(message, dict):
+                    process_message(session, message)
+                    print("Data committed successfully.")
+                else:
+                    print("Received message is not in the expected format (not a dictionary). Skipping message.")
+
         except KeyboardInterrupt:
             break
-
+        except Exception as e:
+            print(f"Error: {e}")
+     
     consumer.close()
 
 

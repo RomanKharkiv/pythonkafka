@@ -1,0 +1,26 @@
+FROM python:3.12-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ../producer/producer_avro.py /app
+COPY ../producer/product_generator.py /app
+COPY ../config.py /app/config.py
+COPY ../schema.avsc /app/schema.avsc
+
+RUN pip install pyinstaller
+RUN pyinstaller --onefile producer_avro.py
+
+#FROM scratch
+
+#WORKDIR /app
+
+#COPY --from=builder /app/dist/producer_avro /app/producer_avro
+ENTRYPOINT ["/app/dist/producer_avro"]
