@@ -8,5 +8,5 @@ uuid~=1.30
 # psycopg2~=2.9.10
 psycopg2-binary
 protobuf3-to-dict==0.1.5
-fastavro==1.8.2
+fastavro
 avro

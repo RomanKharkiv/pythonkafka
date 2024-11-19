@@ -1,0 +1,7 @@
+rules:
+  - pattern: "org.apache.ZooKeeperService<name0=StandaloneServer_port(\\d+)><>(\\w+)"
+    type: GAUGE
+    name: "zookeeper"
+  - pattern: "org.apache.ZooKeeperService<name0=StandaloneServer_port(\\d+), name1=InMemoryDataTree><>(\\w+)"
+    type: GAUGE
+    name: "zookeeper"

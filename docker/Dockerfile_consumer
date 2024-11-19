@@ -10,7 +10,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY ../consumer/consumer.py /app/consumer.py
+COPY ../consumer/processor.py /app/processor.py
 COPY ../config.py /app/config.py
-COPY ../schema.json /app/schema.json
+COPY ../schemas/schema.json /app/schema.json
 
 CMD ["python", "consumer.py"]

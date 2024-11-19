@@ -13,6 +13,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY producer /app
 COPY ../config.py /app
-COPY ../schema.json /app
+COPY ../schemas/schema.json /app
 
 CMD ["python", "producer.py"]

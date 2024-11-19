@@ -15,7 +15,7 @@ COPY .. /app
 
 COPY ../producer/protobuf_producer.py /app/protobuf_producer.py
 COPY ../config.py /app/config.py
-COPY ../schema.json /app/schema.json
+COPY ../schemas/schema.json /app/schema.json
 
 RUN pip install -r requirements.txt --break-system-packages
 CMD make producer_pb

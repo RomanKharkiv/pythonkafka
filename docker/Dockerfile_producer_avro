@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ../producer/producer_avro.py /app
 COPY ../producer/product_generator.py /app
 COPY ../config.py /app/config.py
-COPY ../schema.avsc /app/schema.avsc
+COPY ../schemas/schema.avsc /app/schema.avsc
 
 RUN pip install pyinstaller
 RUN pyinstaller --onefile producer_avro.py

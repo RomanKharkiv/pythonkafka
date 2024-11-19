@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ../consumer/consumer_avro.py /app/consumer_avro.py
 COPY ../consumer/processor.py /app/processor.py
 COPY ../config.py /app/config.py
-COPY ../schema.avsc /app/schema.avsc
+COPY ../schemas/schema.avsc /app/schema.avsc
 
 RUN pip install pyinstaller
 RUN pyinstaller --onefile consumer_avro.py
