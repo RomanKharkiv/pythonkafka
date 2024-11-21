@@ -1,42 +1,4 @@
 services:
-
-  # Catalog UI
-
-  # lrl-urpid-catalog:
-  #   image: 'lrl-urpid-catalog:latest'
-  #   depends_on:
-  #     - lrl-urpid-core
-  #   build:
-  #     dockerfile: ./container/Dockerfile_consumer_avro
-  #     context: ..
-  #   ports:
-  #     - "8082:80"
-  #   volumes:
-  #     - type: bind
-  #       source: ./configs/config.js
-  #       target: /usr/share/nginx/html/config.js
-
-  # Core
-  
-  # lrl-urpid-core:
-    # TODO: use elilly docker registry to avoid build constantly
-    # image: 'lrl-urpid-core:latest'
-    # depends_on: 
-    #   - kafka
-    #   - postgres
-    # build:
-    #   dockerfile: ./container/Dockerfile_consumer_avro
-    #   # TODO: change branch
-    #   context: ${GIT_PREFIX}EliLillyCo/LRL_urpid_core.git#dev
-    # environment:
-    #   - APP_PORT=8080
-    #   - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-    #   - DATABASE_SCHEMA=urpid
-    #   - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    #   - LIQUIBASE_CONTEXT=dev
-    # ports: 
-    #   - "8081:8080"
-
   # Database
   postgres:
     image: postgres:${POSTGRES_VERSION}
@@ -47,13 +9,26 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     expose:
       - "5432"
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data
+    volumes:
+     - postgres-data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+      PGADMIN_DEFAULT_PASSWORD: strong-password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
   ## Zookeeper
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
+    restart: on-failure
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -71,6 +46,7 @@ services:
       - "9997:9997"
     depends_on:
       - zookeeper
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -85,7 +61,6 @@ services:
     volumes:
       - ./jmx-exporter:/usr/share/jmx_exporter/
 
-
   kafka-broker-2:
     image: confluentinc/cp-kafka:latest
     hostname: kafka-broker-2
@@ -94,6 +69,7 @@ services:
       - "9998:9998"
     depends_on:
       - zookeeper
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -108,8 +84,6 @@ services:
     volumes:
        - ./jmx-exporter:/usr/share/jmx_exporter/
 
-
-
   kafka-broker-3:
     image: confluentinc/cp-kafka:latest
     hostname: kafka-broker-3
@@ -118,6 +92,7 @@ services:
       - "9999:9999"
     depends_on:
       - zookeeper
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -295,6 +270,7 @@ services:
 
   grafana:
     image: grafana/grafana
+    container_name: grafana3
     ports:
       - 3000:3000
     restart: on-failure
@@ -321,7 +297,6 @@ services:
       - postgres
       - prometheus
     restart: on-failure
-
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.4-7.6.0
@@ -354,8 +329,8 @@ services:
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
       KAFKA_JMX_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.20.0.jar=9200:/usr/share/jmx_exporter/kafka-connect.yml
     volumes:
-      - "./schemas:/app/schemas"
-      - ./jmx-exporter:/usr/share/jmx_exporter/sr/share/jmx_exporter/
+      - ./schemas:/app/schemas
+      - ./jmx-exporter:/usr/share/jmx_exporter/
 
   akhq:
     image: tchiotludo/akhq:0.24.0
@@ -378,9 +353,9 @@ services:
           connections:
             docker-kafka-server:
               properties:
-                bootstrap.servers: "kafka-broker-1:9092,kafka-broker-2:9093,kafka-broker-3:9094"
+                bootstrap.servers: "kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092"
               schema-registry:
-                url: "http://schema-registry:8081"
+                url: "http://schema-registry:8085"
               connect:
                 - name: "connect"
                   url: "http://connect:8083"
@@ -431,5 +406,7 @@ services:
 
 volumes:
   grafana-data:
+  pgadmin-data:
+  postgres-data:
 
 
