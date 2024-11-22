@@ -16,13 +16,17 @@ COPY ../config.py /app/config.py
 COPY ../schemas/schema.avsc /app/schema.avsc
 
 RUN pip install pyinstaller
-RUN pyinstaller --onefile consumer_avro.py
+RUN pyinstaller --onefile consumer_avro.py --add-data "processor.py:." --add-data "config.py:." --add-data "schema.avsc:."
 
 #FROM scratch
+FROM gcr.io/distroless/python3-debian10
+WORKDIR /app
+COPY --from=builder /app/dist/consumer_avro /app/consumer_avro
+COPY --from=builder /lib/aarch64-linux-gnu/libm.so.6 /lib/aarch64-linux-gnu/libm.so.6
+COPY --from=builder /lib/aarch64-linux-gnu/libc.so.6 /lib/aarch64-linux-gnu/libc.so.6
+COPY --from=builder /lib/ld-linux-aarch64.so.1 /lib/ld-linux-aarch64.so.1
+COPY --from=builder /lib/aarch64-linux-gnu/libpthread.so.0 /lib/aarch64-linux-gnu/libpthread.so.0
 
-#WORKDIR /app
-
-#COPY --from=builder /app/dist/consumer_avro /app/consumer_avro
-ENTRYPOINT ["/app/dist/consumer_avro"]
+ENTRYPOINT ["/app/consumer_avro"]
 
 
