@@ -12,19 +12,20 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ../consumers/consumer.py /app/consumer.py
 COPY ../consumers/processor.py /app/processor.py
-COPY ../kafka_config.py /app/config.py
+COPY ../kafka_config.py /app/kafka_config.py
 COPY ../schemas/schema.json /app/schema.json
 
 RUN pip install pyinstaller
-RUN pyinstaller -D consumer_avro.py --add-data "processor.py:." --add-data "kafka_config.py:." --add-data "schema.avsc:."
+RUN pyinstaller -D consumer.py --add-data "processor.py:." --add-data "kafka_config.py:." --add-data "schema.json:."
 
+# Stage 2
 FROM gcr.io/distroless/python3-debian10
 WORKDIR /app
 
-COPY --from=builder /app/dist/consumer /app/consumer_avro
+COPY --from=builder /app/dist/consumer /app/consumer
 COPY --from=builder /app/dist/consumer/_internal/kafka_config.py /app/kafka_config.py
 COPY --from=builder /app/dist/consumer/_internal/processor.py /app/processor.py
-COPY --from=builder /app/dist/consumer/_internal/schema.avsc /app/schema.json
+COPY --from=builder /app/dist/consumer/_internal/schema.json /app/schema.json
 COPY --from=builder /lib /lib
 
 ENTRYPOINT ["/app/consumer/consumer"]

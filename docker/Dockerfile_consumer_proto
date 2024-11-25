@@ -22,7 +22,7 @@ RUN protoc -I=. --python_out=. protobuf/urpd_product.proto
 RUN pip install pyinstaller
 RUN pyinstaller -D protobuf_consumer.py --add-data "processor.py:." --add-data "kafka_config.py:." --add-data "protobuf/urpd_product_pb2.py:protobuf"
 
-#FROM scratch
+# Stage 2
 FROM gcr.io/distroless/python3-debian10
 WORKDIR /app
 COPY --from=builder /app/dist/protobuf_consumer /app/protobuf_consumer

@@ -11,15 +11,21 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ../producers/producer.py /app/producer.py
-COPY ../producers/product_generator.py /app
+COPY ../producers/product_generator.py /app/product_generator.py
 COPY ../kafka_config.py /app/kafka_config.py
 COPY ../schemas/schema.json /app/schema.json
 
+RUN pip install pyinstaller
+RUN pyinstaller -D producer.py --add-data "product_generator.py:." --add-data "kafka_config.py:." --add-data "schema.json:."
+
+# Stage 2
+FROM gcr.io/distroless/python3-debian10
 WORKDIR /app
+
 COPY --from=builder /app/dist/producer /app/producer
 COPY --from=builder /app/dist/producer/_internal/kafka_config.py /app/kafka_config.py
-COPY --from=builder /app/dist/producer/_internal/processor.py /app/processor.py
-COPY --from=builder /app/dist/producer/_internal/schema.avsc /app/schema.json
+COPY --from=builder /app/dist/producer/_internal/product_generator.py /app/product_generator.py
+COPY --from=builder /app/dist/producer/_internal/schema.json /app/schema.json
 COPY --from=builder /lib /lib
 
 ENTRYPOINT ["/app/producer/producer"]
