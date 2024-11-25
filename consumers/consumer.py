@@ -3,7 +3,7 @@ import os
 from confluent_kafka import Consumer
 from confluent_kafka.schema_registry.json_schema import JSONDeserializer
 from confluent_kafka.serialization import SerializationContext, MessageField
-from config import config, consumer_conf
+from kafka_config import config, consumer_conf
 from processor import process_message_with_retry, Session
 
 

@@ -12,9 +12,9 @@ USER root
 COPY ../requirements.txt .
 COPY .. /app
 
-COPY ../consumer/protobuf_consumer.py /app/protobuf_consumer.py
-COPY ../consumer/processor.py /app/processor.py
-COPY ../config.py /app/config.py
+COPY ../consumers/protobuf_consumer.py /app/protobuf_consumer.py
+COPY ../consumers/processor.py /app/processor.py
+COPY ../kafka_config.py /app/config.py
 COPY ../schemas/schema.json /app/schema.json
 
 RUN pip install -r requirements.txt --break-system-packages

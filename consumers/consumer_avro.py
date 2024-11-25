@@ -1,7 +1,7 @@
 import os
 from confluent_kafka import Consumer
 from confluent_kafka.serialization import SerializationContext, MessageField
-from config import config, consumer_conf, sr_config
+from kafka_config import config, consumer_conf, sr_config
 from processor import process_message_with_retry, Session
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.avro import AvroDeserializer

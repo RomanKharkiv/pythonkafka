@@ -79,7 +79,7 @@ services:
       KAFKA_JMX_PORT: 9998
       KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-broker-1 -Dcom.sun.management.jmxremote.rmi.port=9998
       KAFKA_MESSAGE_MAX_BYTES: 5242880  # 5 MB
-      KAFKA_MAX_REQUEST_SIZE: 5242880  # 5 MB for producer requests
+      KAFKA_MAX_REQUEST_SIZE: 5242880  # 5 MB for producers requests
       KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.20.0.jar=9200:/usr/share/jmx_exporter/kafka-broker.yml
     volumes:
        - ./jmx-exporter:/usr/share/jmx_exporter/
@@ -102,7 +102,7 @@ services:
       KAFKA_JMX_PORT: 9999
       KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-broker-3 -Dcom.sun.management.jmxremote.rmi.port=9999
       KAFKA_MESSAGE_MAX_BYTES: 5242880  # 5 MB
-      KAFKA_MAX_REQUEST_SIZE: 5242880  # 5 MB for producer requests
+      KAFKA_MAX_REQUEST_SIZE: 5242880  # 5 MB for producers requests
       KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.20.0.jar=9200:/usr/share/jmx_exporter/kafka-broker.yml
     volumes:
        - ./jmx-exporter:/usr/share/jmx_exporter/
@@ -175,13 +175,13 @@ services:
     volumes:
        - ./jmx-exporter:/usr/share/jmx_exporter/
 
-  ## Kafka producer with fake egress messages
+  ## Kafka producers with fake egress messages
   producer:
     build:
       context: .
       dockerfile: docker/Dockerfile_producer
-    container_name: producer
-    image: my/kafka-producer:v1r
+    container_name: producers
+    image: my/kafka-producer:v1
     environment:
       KAFKA_TOPIC: result.overall
     depends_on:
@@ -190,11 +190,11 @@ services:
       - kafka-broker-3
     restart: on-failure
 
-  ## Kafka consumer
+  ## Kafka consumers
   consumer:
     build:
       dockerfile: docker/Dockerfile_consumer
-    image: my/kafka-consumer:v146
+    image: my/kafka-consumer:v1
     environment:
       KAFKA_TOPIC: result.overall
       POSTGRES_USER: ${POSTGRES_USER}
@@ -210,8 +210,8 @@ services:
 
   produce_proto:
     build:
-      dockerfile: docker/Dockerfile_producer_proto
-    image: my/producer-proto:v24
+      dockerfile: docker/Dockerfile_producer_proto_2
+    image: my/producer-proto:1
     container_name: producer_proto
     environment:
       KAFKA_TOPIC: result.overall.proto
@@ -223,8 +223,8 @@ services:
 
   consumer_proto:
     build:
-      dockerfile: docker/Dockerfile_consumer_proto
-    image: my/consumer-proto:v248
+      dockerfile: docker/Dockerfile_consumer_proto_2
+    image: my/consumer-proto:1
     environment:
       KAFKA_TOPIC: result.overall.proto
       POSTGRES_USER: ${POSTGRES_USER}
@@ -241,7 +241,7 @@ services:
   produce_avro:
     build:
       dockerfile: docker/Dockerfile_producer_avro
-    image: my/producer-avro:v11w
+    image: my/producer-avro:v1
     container_name: producer_avro_451w4
     environment:
       KAFKA_TOPIC: result.overall.avro
@@ -254,7 +254,7 @@ services:
   consumer_avro:
     build:
       dockerfile: docker/Dockerfile_consumer_avro
-    image: my/consumer-avro:v23
+    image: my/consumer-avro:v1
     environment:
       KAFKA_TOPIC: result.overall.avro
       POSTGRES_USER: ${POSTGRES_USER}

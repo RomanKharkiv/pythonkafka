@@ -13,8 +13,8 @@ USER root
 COPY ../requirements.txt .
 COPY .. /app
 
-COPY ../producer/protobuf_producer.py /app/protobuf_producer.py
-COPY ../config.py /app/config.py
+COPY ../producers/protobuf_producer.py /app/protobuf_producer.py
+COPY ../kafka_config.py /app/config.py
 COPY ../schemas/schema.json /app/schema.json
 
 RUN pip install -r requirements.txt --break-system-packages

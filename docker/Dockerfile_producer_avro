@@ -10,17 +10,21 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ../producer/producer_avro.py /app
-COPY ../producer/product_generator.py /app
-COPY ../config.py /app/config.py
+COPY ../producers/producer_avro.py /app
+COPY ../producers/product_generator.py /app
+COPY ../kafka_config.py /app/config.py
 COPY ../schemas/schema.avsc /app/schema.avsc
 
 RUN pip install pyinstaller
 RUN pyinstaller --onefile producer_avro.py
 
-#FROM scratch
+FROM gcr.io/distroless/python3-debian10
 
-#WORKDIR /app
+WORKDIR /app
+COPY --from=builder /app/dist/producer_avro /app/producer_avro
+COPY --from=builder /app/dist/producer_avro/_internal/kafka_config.py /app/kafka_config.py
+COPY --from=builder /app/dist/producer_avro/_internal/processor.py /app/processor.py
+COPY --from=builder /app/dist/producer_avro/_internal/schema.avsc /app/schema.avsc
+COPY --from=builder /lib /lib
 
-#COPY --from=builder /app/dist/producer_avro /app/producer_avro
-ENTRYPOINT ["/app/dist/producer_avro"]
+ENTRYPOINT ["/app/producer_avro/producer_avro"]

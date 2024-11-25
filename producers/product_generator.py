@@ -15,7 +15,7 @@ def generate_alternative_id():
         "alternative_id": f"{random.choice(prefixes)}-{suffix}",
         "coding_system": {
             "coding_system_code": random.choice(["GSMR", "REGM", "BNCH"]), 
-            #"coding_system_display_name": "some name",     # will be generated in consumer
+            #"coding_system_display_name": "some name",     # will be generated in consumers
             "url_prefix": random.choice(["https://link_1", "https://link_2", "https://link_3"])
             #"trusted_system": random.choice(["GSMR", "REGM", "BNCH"])    # will be a key in final
         }

@@ -6,7 +6,7 @@ from confluent_kafka import Producer
 from confluent_kafka.serialization import SerializationContext, MessageField, StringSerializer
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.json_schema import JSONSerializer
-from config import sr_config, config
+from kafka_config import sr_config, config
 from product_generator import generate_data
 
 

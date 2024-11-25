@@ -1,17 +1,30 @@
-FROM python:3.13
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+FROM python:3.12-slim AS builder
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-USER root
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
-
-COPY ../consumer/consumer.py /app/consumer.py
-COPY ../consumer/processor.py /app/processor.py
-COPY ../config.py /app/config.py
+COPY ../consumers/consumer.py /app/consumer.py
+COPY ../consumers/processor.py /app/processor.py
+COPY ../kafka_config.py /app/config.py
 COPY ../schemas/schema.json /app/schema.json
 
-CMD ["python", "consumer.py"]
+RUN pip install pyinstaller
+RUN pyinstaller -D consumer_avro.py --add-data "processor.py:." --add-data "kafka_config.py:." --add-data "schema.avsc:."
+
+FROM gcr.io/distroless/python3-debian10
+WORKDIR /app
+
+COPY --from=builder /app/dist/consumer /app/consumer_avro
+COPY --from=builder /app/dist/consumer/_internal/kafka_config.py /app/kafka_config.py
+COPY --from=builder /app/dist/consumer/_internal/processor.py /app/processor.py
+COPY --from=builder /app/dist/consumer/_internal/schema.avsc /app/schema.json
+COPY --from=builder /lib /lib
+
+ENTRYPOINT ["/app/consumer/consumer"]

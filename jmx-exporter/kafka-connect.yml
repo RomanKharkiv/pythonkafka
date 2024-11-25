@@ -1,8 +1,8 @@
 lowercaseOutputName: true
 rules:
   #kafka.connect:type=app-info,client-id="{clientid}"
-  #kafka.consumer:type=app-info,client-id="{clientid}"
-  #kafka.producer:type=app-info,client-id="{clientid}"
+  #kafka.consumers:type=app-info,client-id="{clientid}"
+  #kafka.producers:type=app-info,client-id="{clientid}"
   - pattern: "kafka.(.+)<type=app-info, client-id=(.+)><>start-time-ms"
     name: kafka_$1_start_time_seconds
     labels:
@@ -19,8 +19,8 @@ rules:
     help: "Kafka $1 JMX metric info version and commit-id"
     type: GAUGE
 
-  #kafka.producer:type=producer-topic-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
-  #kafka.consumer:type=consumer-fetch-manager-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
+  #kafka.producers:type=producers-topic-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
+  #kafka.consumers:type=consumers-fetch-manager-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+), partition=(.+)><>(.+-total|compression-rate|.+-avg|.+-replica|.+-lag|.+-lead)
     name: kafka_$2_$6
     labels:
@@ -30,8 +30,8 @@ rules:
     help: "Kafka $1 JMX metric type $2"
     type: GAUGE
 
-  #kafka.producer:type=producer-topic-metrics,client-id="{clientid}",topic="{topic}"
-  #kafka.consumer:type=consumer-fetch-manager-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
+  #kafka.producers:type=producers-topic-metrics,client-id="{clientid}",topic="{topic}"
+  #kafka.consumers:type=consumers-fetch-manager-metrics,client-id="{clientid}",topic="{topic}"", partition="{partition}"
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), topic=(.+)><>(.+-total|compression-rate|.+-avg)
     name: kafka_$2_$5
     labels:
@@ -41,7 +41,7 @@ rules:
     type: GAUGE
 
   #kafka.connect:type=connect-node-metrics,client-id="{clientid}",node-id="{nodeid}"
-  #kafka.consumer:type=consumer-node-metrics,client-id=consumer-1,node-id="{nodeid}"
+  #kafka.consumers:type=consumers-node-metrics,client-id=consumers-1,node-id="{nodeid}"
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.+), node-id=(.+)><>(.+-total|.+-avg)
     name: kafka_$2_$5
     labels:
@@ -51,9 +51,9 @@ rules:
     type: UNTYPED
 
   #kafka.connect:type=kafka-metrics-count,client-id="{clientid}"
-  #kafka.consumer:type=consumer-fetch-manager-metrics,client-id="{clientid}"
-  #kafka.consumer:type=consumer-coordinator-metrics,client-id="{clientid}"
-  #kafka.consumer:type=consumer-metrics,client-id="{clientid}"
+  #kafka.consumers:type=consumers-fetch-manager-metrics,client-id="{clientid}"
+  #kafka.consumers:type=consumers-coordinator-metrics,client-id="{clientid}"
+  #kafka.consumers:type=consumers-metrics,client-id="{clientid}"
   - pattern: kafka.(.+)<type=(.+)-metrics, client-id=(.*)><>(.+-total|.+-avg|.+-bytes|.+-count|.+-ratio|.+-age|.+-flight|.+-threads|.+-connectors|.+-tasks|.+-ago)
     name: kafka_$2_$4
     labels:

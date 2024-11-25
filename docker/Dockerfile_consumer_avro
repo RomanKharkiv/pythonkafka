@@ -1,5 +1,5 @@
 FROM python:3.12-slim AS builder
-
+USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -10,23 +10,23 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ../consumer/consumer_avro.py /app/consumer_avro.py
-COPY ../consumer/processor.py /app/processor.py
-COPY ../config.py /app/config.py
+COPY ../consumers/consumer_avro.py /app/consumer_avro.py
+COPY ../consumers/processor.py /app/processor.py
+COPY ../kafka_config.py /app/kafka_config.py
 COPY ../schemas/schema.avsc /app/schema.avsc
 
 RUN pip install pyinstaller
-RUN pyinstaller --onefile consumer_avro.py --add-data "processor.py:." --add-data "config.py:." --add-data "schema.avsc:."
+RUN pyinstaller -D consumer_avro.py --add-data "processor.py:." --add-data "kafka_config.py:." --add-data "schema.avsc:."
 
 #FROM scratch
 FROM gcr.io/distroless/python3-debian10
 WORKDIR /app
 COPY --from=builder /app/dist/consumer_avro /app/consumer_avro
-COPY --from=builder /lib/aarch64-linux-gnu/libm.so.6 /lib/aarch64-linux-gnu/libm.so.6
-COPY --from=builder /lib/aarch64-linux-gnu/libc.so.6 /lib/aarch64-linux-gnu/libc.so.6
-COPY --from=builder /lib/ld-linux-aarch64.so.1 /lib/ld-linux-aarch64.so.1
-COPY --from=builder /lib/aarch64-linux-gnu/libpthread.so.0 /lib/aarch64-linux-gnu/libpthread.so.0
+COPY --from=builder /app/dist/consumer_avro/_internal/kafka_config.py /app/kafka_config.py
+COPY --from=builder /app/dist/consumer_avro/_internal/processor.py /app/processor.py
+COPY --from=builder /app/dist/consumer_avro/_internal/schema.avsc /app/schema.avsc
+COPY --from=builder /lib /lib
 
-ENTRYPOINT ["/app/consumer_avro"]
+ENTRYPOINT ["/app/consumer_avro/consumer_avro"]
 
 

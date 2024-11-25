@@ -2,7 +2,7 @@ from protobuf import urpd_product_pb2
 from confluent_kafka import Consumer
 from confluent_kafka.serialization import SerializationContext, MessageField
 from confluent_kafka.schema_registry.protobuf import ProtobufDeserializer
-from config import config, consumer_conf
+from kafka_config import config, consumer_conf
 import os
 from protobuf_to_dict import protobuf_to_dict
 from processor import process_message, Session

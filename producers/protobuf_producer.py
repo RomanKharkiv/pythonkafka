@@ -7,8 +7,8 @@ from confluent_kafka import Producer
 from confluent_kafka.serialization import SerializationContext, MessageField, StringSerializer
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.protobuf import ProtobufSerializer
-from config import config, sr_config
-from producer.product_generator import generate_data
+from kafka_config import config, sr_config
+from product_generator import generate_data
 from google.protobuf.json_format import ParseDict
 
 

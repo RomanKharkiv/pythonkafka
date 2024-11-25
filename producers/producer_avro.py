@@ -3,7 +3,7 @@ import time
 from confluent_kafka import Producer
 from confluent_kafka.serialization import SerializationContext, MessageField, StringSerializer
 from confluent_kafka.schema_registry import SchemaRegistryClient
-from config import sr_config, config
+from kafka_config import sr_config, config
 from product_generator import generate_data
 from confluent_kafka.schema_registry.avro import AvroSerializer
 
