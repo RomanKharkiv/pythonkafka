@@ -19,7 +19,8 @@ RUN pip install pyinstaller
 RUN pyinstaller -D producer.py --add-data "product_generator.py:." --add-data "kafka_config.py:." --add-data "schema.json:."
 
 # Stage 2
-FROM gcr.io/distroless/python3-debian10
+#FROM gcr.io/distroless/python3-debian10
+FROM scratch
 WORKDIR /app
 
 COPY --from=builder /app/dist/producer /app/producer

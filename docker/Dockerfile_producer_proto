@@ -20,10 +20,11 @@ COPY ../kafka_config.py /app/kafka_config.py
 RUN protoc -I=. --python_out=. protobuf/urpd_product.proto
 
 RUN pip install pyinstaller
-RUN pyinstaller -D protobuf_producer.py --add-data "product_generator.py:." --add-data "kafka_config.py:." --add-data "protobuf/urpd_product_pb2.py:protobuf"
+RUN pyinstaller -F protobuf_producer.py --add-data "product_generator.py:." --add-data "kafka_config.py:." --add-data "protobuf/urpd_product_pb2.py:protobuf"
 
 # Stage 2
-FROM gcr.io/distroless/python3-debian10
+#FROM gcr.io/distroless/python3-debian10
+FROM scratch
 WORKDIR /app
 COPY --from=builder /app/dist/protobuf_producer /app/protobuf_producer
 COPY --from=builder /app/dist/protobuf_producer/_internal/kafka_config.py /app/kafka_config.py
