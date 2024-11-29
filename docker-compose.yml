@@ -292,7 +292,7 @@ services:
     ports:
       - 9187:9187
     environment:
-      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}d@${POSTGRES_DB}:5432/shop?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}d@$postgres:5432/{POSTGRES_DB}?sslmode=disable"
     links:
       - postgres
       - prometheus
