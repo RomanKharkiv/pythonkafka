@@ -116,12 +116,6 @@ services:
       - kafka-broker-3
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
              cub kafka-ready -b kafka-broker-1:9092 1 30 && \
-             kafka-topics --create --topic object.gsmr --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
-             kafka-topics --create --topic object.regmol --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
-             kafka-topics --create --topic object.benchling --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
-             kafka-topics --create --topic result.gsmr --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
-             kafka-topics --create --topic result.regmol --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
-             kafka-topics --create --topic result.benchling --partitions 1 --replication-factor 1 --if-not-exists --bootstrap-server kafka-broker-1:9092 && \
              kafka-topics --create --topic result.overall.proto --partitions 3 --replication-factor 2 --if-not-exists --bootstrap-server kafka-broker-3:9092 && \
              kafka-topics --create --topic result.overall.avro --partitions 3 --replication-factor 2 --if-not-exists --bootstrap-server kafka-broker-2:9092 && \
              kafka-topics --create --topic result.overall --partitions 3 --replication-factor 2 --if-not-exists --bootstrap-server kafka-broker-1:9092'"
@@ -206,7 +200,6 @@ services:
       - kafka-broker-3
       - postgres
     restart: on-failure
-    scale: 3
 
   produce_proto:
     build:
@@ -236,7 +229,6 @@ services:
       - kafka-broker-3
       - postgres
     restart: on-failure
-    scale: 3
 
   produce_avro:
     build:
@@ -266,7 +258,6 @@ services:
       - kafka-broker-3
       - postgres
     restart: on-failure
-    scale: 3
 
   grafana:
     image: grafana/grafana
@@ -332,77 +323,77 @@ services:
       - ./schemas:/app/schemas
       - ./jmx-exporter:/usr/share/jmx_exporter/
 
-  akhq:
-    image: tchiotludo/akhq:0.24.0
-    environment:
-      AKHQ_CONFIGURATION: |
-        micronaut:
-          security:
-            enabled: true
-            token:
-              jwt:
-                signatures:
-                  secret:
-                    generator:
-                      secret: 7ca443c961d55f0962e7ec59756a618988fbc6803ee7e50f88a5317fa10008fb
-        akhq:
-          clients-defaults:
-            consumer:
-              properties:
-                default.api.timeout.ms: 15000000
-          connections:
-            docker-kafka-server:
-              properties:
-                bootstrap.servers: "kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092"
-              schema-registry:
-                url: "http://schema-registry:8085"
-              connect:
-                - name: "connect"
-                  url: "http://connect:8083"
-          security:
-            basic-auth:
-              - username: myuser
-                # SHA256 encoded password: "admin123"
-                password: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" 
-                groups:
-                  - admin
-            default-group: admin
-            groups:
-              admin:
-                name: admin
-                roles:
-                  - topic/read
-                  - topic/insert
-                  - topic/delete
-                  - topic/config/update
-                  - node/read
-                  - node/config/update
-                  - topic/data/read
-                  - topic/data/insert
-                  - topic/data/delete
-                  - group/read
-                  - group/delete
-                  - group/offsets/update
-                  - registry/read
-                  - registry/insert
-                  - registry/update
-                  - registry/delete
-                  - registry/version/delete
-                  - acls/read
-                  - connect/read
-                  - connect/insert
-                  - connect/update
-                  - connect/delete
-                  - connect/state/update
-    depends_on:
-      - schema-registry
-    ports:
-      - 8090:8090
-    links:
-      - kafka-broker-1
-      - kafka-broker-2
-      - kafka-broker-3
-      - schema-registry
+  # akhq:
+  #   image: tchiotludo/akhq:0.24.0
+  #   environment:
+  #     AKHQ_CONFIGURATION: |
+  #       micronaut:
+  #         security:
+  #           enabled: true
+  #           token:
+  #             jwt:
+  #               signatures:
+  #                 secret:
+  #                   generator:
+  #                     secret: 7ca443c961d55f0962e7ec59756a618988fbc6803ee7e50f88a5317fa10008fb
+  #       akhq:
+  #         clients-defaults:
+  #           consumer:
+  #             properties:
+  #               default.api.timeout.ms: 15000000
+  #         connections:
+  #           docker-kafka-server:
+  #             properties:
+  #               bootstrap.servers: "kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092"
+  #             schema-registry:
+  #               url: "http://schema-registry:8085"
+  #             connect:
+  #               - name: "connect"
+  #                 url: "http://connect:8083"
+  #         security:
+  #           basic-auth:
+  #             - username: myuser
+  #               # SHA256 encoded password: "admin123"
+  #               password: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" 
+  #               groups:
+  #                 - admin
+  #           default-group: admin
+  #           groups:
+  #             admin:
+  #               name: admin
+  #               roles:
+  #                 - topic/read
+  #                 - topic/insert
+  #                 - topic/delete
+  #                 - topic/config/update
+  #                 - node/read
+  #                 - node/config/update
+  #                 - topic/data/read
+  #                 - topic/data/insert
+  #                 - topic/data/delete
+  #                 - group/read
+  #                 - group/delete
+  #                 - group/offsets/update
+  #                 - registry/read
+  #                 - registry/insert
+  #                 - registry/update
+  #                 - registry/delete
+  #                 - registry/version/delete
+  #                 - acls/read
+  #                 - connect/read
+  #                 - connect/insert
+  #                 - connect/update
+  #                 - connect/delete
+  #                 - connect/state/update
+  #   depends_on:
+  #     - schema-registry
+  #   ports:
+  #     - 8090:8090
+  #   links:
+  #     - kafka-broker-1
+  #     - kafka-broker-2
+  #     - kafka-broker-3
+  #     - schema-registry
 
 volumes:
   grafana-data:
