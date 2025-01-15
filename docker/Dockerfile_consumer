@@ -19,8 +19,7 @@ RUN pip install pyinstaller
 RUN pyinstaller -D consumer.py --add-data "processor.py:." --add-data "kafka_config.py:." --add-data "schema.json:."
 
 # Stage 2
-#FROM gcr.io/distroless/python3-debian10
-
+# FROM gcr.io/distroless/python3-debian10
 FROM scratch
 WORKDIR /app
 
@@ -29,5 +28,6 @@ COPY --from=builder /app/dist/consumer/_internal/kafka_config.py /app/kafka_conf
 COPY --from=builder /app/dist/consumer/_internal/processor.py /app/processor.py
 COPY --from=builder /app/dist/consumer/_internal/schema.json /app/schema.json
 COPY --from=builder /lib /lib
+COPY --from=builder /lib64 /lib64
 
 ENTRYPOINT ["/app/consumer/consumer"]

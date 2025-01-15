@@ -175,7 +175,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile_producer
     container_name: producers
-    image: my/kafka-producer:v2fd
+    image: my/kafka-producer:v1
     environment:
       KAFKA_TOPIC: result.overall
     depends_on:
@@ -188,7 +188,7 @@ services:
   consumer:
     build:
       dockerfile: docker/Dockerfile_consumer
-    image: my/kafka-consumer:v2jhd
+    image: my/kafka-consumer:v1
     environment:
       KAFKA_TOPIC: result.overall
       POSTGRES_USER: ${POSTGRES_USER}
@@ -204,7 +204,7 @@ services:
   produce_proto:
     build:
       dockerfile: docker/Dockerfile_producer_proto
-    image: my/producer-proto:dddf
+    image: my/producer-proto:v1
     container_name: producer_proto2
     environment:
       KAFKA_TOPIC: result.overall.proto
@@ -217,7 +217,7 @@ services:
   consumer_proto:
     build:
       dockerfile: docker/Dockerfile_consumer_proto
-    image: my/consumer-proto:v2xd
+    image: my/consumer-proto:v1
     environment:
       KAFKA_TOPIC: result.overall.proto
       POSTGRES_USER: ${POSTGRES_USER}
@@ -233,8 +233,8 @@ services:
   produce_avro:
     build:
       dockerfile: docker/Dockerfile_producer_avro
-    image: my/producer-avro:v2xd
-    container_name: producer_avro_451w4
+    image: my/producer-avro:v1
+    container_name: producer_avro
     environment:
       KAFKA_TOPIC: result.overall.avro
     depends_on:
@@ -246,7 +246,7 @@ services:
   consumer_avro:
     build:
       dockerfile: docker/Dockerfile_consumer_avro
-    image: my/consumer-avro:v2xd
+    image: my/consumer-avro:v1
     environment:
       KAFKA_TOPIC: result.overall.avro
       POSTGRES_USER: ${POSTGRES_USER}
@@ -261,7 +261,7 @@ services:
 
   grafana:
     image: grafana/grafana
-    container_name: grafana3
+    container_name: grafana
     ports:
       - 3000:3000
     restart: on-failure

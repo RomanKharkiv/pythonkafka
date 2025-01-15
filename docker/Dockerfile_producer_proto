@@ -23,13 +23,16 @@ RUN pip install pyinstaller
 RUN pyinstaller -D protobuf_producer.py --add-data "product_generator.py:." --add-data "kafka_config.py:." --add-data "protobuf/urpd_product_pb2.py:protobuf"
 
 # Stage 2
-#FROM gcr.io/distroless/python3-debian10
+# FROM gcr.io/distroless/python3-debian10
+# FROM debian:bullseye-slim
 FROM scratch
+
 WORKDIR /app
 COPY --from=builder /app/dist/protobuf_producer /app/protobuf_producer
 COPY --from=builder /app/dist/protobuf_producer/_internal/kafka_config.py /app/kafka_config.py
 COPY --from=builder /app/dist/protobuf_producer/_internal/product_generator.py /app/product_generator.py
 COPY --from=builder /app/dist/protobuf_producer/_internal/protobuf/urpd_product_pb2.py /app/protobuf/urpd_product_pb2.py
 COPY --from=builder /lib /lib
+COPY --from=builder /lib64 /lib64
 
 ENTRYPOINT ["/app/protobuf_producer/protobuf_producer"]

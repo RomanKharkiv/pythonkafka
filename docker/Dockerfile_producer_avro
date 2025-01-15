@@ -19,7 +19,8 @@ RUN pip install pyinstaller
 RUN pyinstaller -D producer_avro.py --add-data "product_generator.py:." --add-data "kafka_config.py:." --add-data "schema.avsc:."
 
 # Stage 2
-#FROM gcr.io/distroless/python3-debian10
+# FROM gcr.io/distroless/python3-debian10
+# FROM debian:bullseye-slim
 FROM scratch
 
 WORKDIR /app
@@ -28,5 +29,6 @@ COPY --from=builder /app/dist/producer_avro/_internal/kafka_config.py /app/kafka
 COPY --from=builder /app/dist/producer_avro/_internal/product_generator.py /app/product_generator.py
 COPY --from=builder /app/dist/producer_avro/_internal/schema.avsc /app/schema.avsc
 COPY --from=builder /lib /lib
+COPY --from=builder /lib64 /lib64
 
 ENTRYPOINT ["/app/producer_avro/producer_avro"]
